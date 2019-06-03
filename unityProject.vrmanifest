@@ -1,0 +1,16 @@
+{
+  "source": "Unity",
+  "applications": [
+    {
+      "app_key": "application.generated.unity.catsimulator.exe",
+      "launch_type": "url",
+      "url": "steam://launch/",
+      "action_manifest_path": "D:\\alexh\\Documents\\School\\CAP4053\\Cat-Simulator-VR-Conversion\\actions.json",
+      "strings": {
+        "en_us": {
+          "name": "Cat Simulator [Testing]"
+        }
+      }
+    }
+  ]
+}
