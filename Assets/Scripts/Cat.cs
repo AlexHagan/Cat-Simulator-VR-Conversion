@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.UI;
+using UnityEngine.XR;
 
 public enum SelectedTool
 {
@@ -18,7 +19,7 @@ public enum SelectedTool
 public class Cat : BaseCat
 {
 	// The cat's current activity/behavior/goal
-	CatActivity activity;
+	public CatActivity activity;
 	
 	// Animation variables
 	NavMeshAgent agent;
@@ -34,15 +35,16 @@ public class Cat : BaseCat
 	BehaviorTree autonomousCatBehaviorTree;
 	BehaviorTree userInteractionBehaviorTree;
 	Context contextObject;
+
 	// Coroutine variables
 	private bool waiting;
 	public const float BT_TRAVERSAL_INTERVAL = 1F;	// Traverse the tree every second
 	
 	// Petting / brushing / summoning related variables
-	Vector3 inFrontOfUserPosition;
+	public Vector3 inFrontOfUserPosition {get; private set;}
 	bool is_drag;
 	double drag_start_time;
-	public float time_of_last_user_interaction {get; private set;}
+	public float time_of_last_user_interaction {get; set;}
 	
 	// Can the cat currently use catnip? (if it is currently on catnip, using more will not do anything in order to prevent catnip buffs from stacking)
 	public bool on_catnip {get; private set;}
@@ -67,6 +69,18 @@ public class Cat : BaseCat
     void Start()
     {
 		last_autosave_time = 0F;
+
+		// Check if VR is detected
+		if (XRDevice.isPresent)
+		{
+			Debug.Log("XR device detected.");
+		}
+		else
+		{
+			Debug.Log("XR device not detected.");
+		}
+		
+
 		// Initialize agent
 		agent = GetComponent<NavMeshAgent>();
 		// Initialize animator
@@ -247,8 +261,8 @@ public class Cat : BaseCat
 		// Run behavior tree. If a tree is "paused", it will not run.
 		StartCoroutine(runTree(Time.time));
 		
-		// If cat is currently interacting with user, the camera should follow the cat
-		if (userInteractionBehaviorTree.paused == false)
+		// If cat is currently interacting with user && user is in desktop mode, the camera should follow the cat
+		if ((userInteractionBehaviorTree.paused == false) && (XRDevice.isPresent == false))
 		{
 			Camera.main.transform.LookAt(gameObject.transform); // Main camera look at cat
 		}
@@ -424,4 +438,5 @@ public class Cat : BaseCat
 		
 		Camera.main.transform.LookAt(gameObject.transform); // Main camera look at cat
 	}
+
 }
