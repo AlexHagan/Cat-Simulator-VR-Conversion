@@ -118,16 +118,10 @@ public class Cat : BaseCat
 		selected_tool = SelectedTool.NONE;
 		SelectTool(SelectedTool.HAND);
 
-		// Previous save should always exist (otherwise adoption center would be loaded)
-		// If for some reason we got here, crash.
 		if (!GameSave.Valid()) {
-			Debug.Log("LivingRoom loaded without a save! Quiting.");
-#if UNITY_EDITOR
-        UnityEditor.EditorApplication.isPlaying = false;
-#else
-        Application.Quit ();
-			return;
-#endif
+			Debug.Log("No save data found; creating new cat.");
+			CreateNew();
+			Save();
 		}
 
 		// Load previous save / adopted cat
