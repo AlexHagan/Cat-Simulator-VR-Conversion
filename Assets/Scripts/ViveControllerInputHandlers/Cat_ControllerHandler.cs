@@ -16,7 +16,8 @@ using HTC.UnityPlugin.Vive;
 public class Cat_ControllerHandler : MonoBehaviour
 										, IPointerEnterHandler
  										, IPointerExitHandler
- 										, IPointerClickHandler
+ 										, IPointerDownHandler
+ 										, IPointerUpHandler 
 {
 	private HashSet<PointerEventData> hovers = new HashSet<PointerEventData>();
 	Cat catScript; 	// Reference to cat class attached to Cat gameobject
@@ -31,6 +32,13 @@ public class Cat_ControllerHandler : MonoBehaviour
 	{
 		catScript = GameObject.Find("Cat").GetComponent<Cat>();
 		agent = GetComponent<NavMeshAgent>();
+		is_drag = false;
+	}
+
+	void Update()
+	{
+
+
 	}
 
 	public void OnPointerEnter(PointerEventData eventData)
@@ -49,7 +57,7 @@ public class Cat_ControllerHandler : MonoBehaviour
 		}
 	}
 
-	public void OnPointerClick(PointerEventData eventData)
+	public void OnPointerDown(PointerEventData eventData)
 	{
 		if (eventData.IsViveButton(ControllerButton.Trigger))
 		{
@@ -63,13 +71,9 @@ public class Cat_ControllerHandler : MonoBehaviour
 				drag_start_time = Time.time;
 			}
 		}
-		else if (eventData.button == PointerEventData.InputButton.Left)
-		{
-			// Standalone button pressed
-		}
 	}
 
-	public void OnPointerRelease(PointerEventData eventData)
+	public void OnPointerUp(PointerEventData eventData)
 	{
 		// When mouse released, act based on accumulated drag
 		is_drag = false;
@@ -91,12 +95,14 @@ public class Cat_ControllerHandler : MonoBehaviour
 			{
 				catScript.activity.current = CatActivityEnum.BeingPet;
 				catScript.achievements.num_pets++;
+				Debug.Log("Petted cat with VR controller.");
 			}
 			// If using brush tool, register as brushing
 			else if (catScript.selected_tool == SelectedTool.BRUSH)
 			{
 				catScript.activity.current = CatActivityEnum.BeingBrushed;
 				catScript.achievements.num_brushes++;
+				Debug.Log("Brushed cat with VR controller.");
 			}
 		}
 
