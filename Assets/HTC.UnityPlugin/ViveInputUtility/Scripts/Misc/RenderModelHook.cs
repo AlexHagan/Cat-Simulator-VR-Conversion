@@ -42,6 +42,7 @@ namespace HTC.UnityPlugin.Vive
 
             public override void UpdateRenderModel()
             {
+                
                 var index = hook.GetModelDeviceIndex();
 
                 if (!VRModule.IsValidDeviceIndex(index))
@@ -90,6 +91,7 @@ namespace HTC.UnityPlugin.Vive
                         m_model.SetActive(true);
                     }
                 }
+                
             }
 
             public override void CleanUpRenderModel()
@@ -268,8 +270,10 @@ namespace HTC.UnityPlugin.Vive
             return result;
         }
 
+        // Code that makes the controller render
         private void UpdateModel()
         {
+            /*
             if (m_isQuiting) { return; }
 
             var activeCreatorIndex = -1;
@@ -306,6 +310,7 @@ namespace HTC.UnityPlugin.Vive
             {
                 m_creators[activeCreatorIndex].UpdateRenderModel();
             }
+            */
         }
     }
 }

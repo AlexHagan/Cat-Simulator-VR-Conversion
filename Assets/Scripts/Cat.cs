@@ -62,8 +62,6 @@ public class Cat : BaseCat
 	GameObject laserPointer;
 	// Laser pointer GameObject's script
 	LaserPointer laserPointerScript;
-	// Camera movement script
-	CameraMovementForVR cameraMovementScript;
 	
 	float last_update_time;
 
@@ -186,9 +184,6 @@ public class Cat : BaseCat
 														);
 		userInteractionBehaviorTree.paused = true;
 		
-
-		cameraMovementScript = Camera.main.GetComponentInParent<CameraMovementForVR>();
-
 		
 		// Initialize last update time to now
 		last_update_time = Time.time;

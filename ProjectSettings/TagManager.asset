@@ -6,6 +6,11 @@ TagManager:
   tags:
   - toy
   - poop
+  - LeftHand
+  - RightHand
+  - Reticle
+  - GameController_Left
+  - GameController_Right
   layers:
   - Default
   - TransparentFX
