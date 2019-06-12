@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.UI;
+using UnityEngine.XR;
 
 public enum SelectedTool
 {
@@ -18,7 +19,7 @@ public enum SelectedTool
 public class Cat : BaseCat
 {
 	// The cat's current activity/behavior/goal
-	CatActivity activity;
+	public CatActivity activity;
 	
 	// Animation variables
 	NavMeshAgent agent;
@@ -34,15 +35,16 @@ public class Cat : BaseCat
 	BehaviorTree autonomousCatBehaviorTree;
 	BehaviorTree userInteractionBehaviorTree;
 	Context contextObject;
+
 	// Coroutine variables
 	private bool waiting;
 	public const float BT_TRAVERSAL_INTERVAL = 1F;	// Traverse the tree every second
 	
 	// Petting / brushing / summoning related variables
-	Vector3 inFrontOfUserPosition;
+	public Vector3 inFrontOfUserPosition {get; private set;}
 	bool is_drag;
 	double drag_start_time;
-	public float time_of_last_user_interaction {get; private set;}
+	public float time_of_last_user_interaction {get; set;}
 	
 	// Can the cat currently use catnip? (if it is currently on catnip, using more will not do anything in order to prevent catnip buffs from stacking)
 	public bool on_catnip {get; private set;}
@@ -67,6 +69,18 @@ public class Cat : BaseCat
     void Start()
     {
 		last_autosave_time = 0F;
+
+		// Check if VR is detected
+		if (XRDevice.isPresent)
+		{
+			Debug.Log("XR device detected.");
+		}
+		else
+		{
+			Debug.Log("XR device not detected.");
+		}
+		
+
 		// Initialize agent
 		agent = GetComponent<NavMeshAgent>();
 		// Initialize animator
@@ -75,7 +89,7 @@ public class Cat : BaseCat
 		forced_sit = false;
 		
 		// Cat position for petting / brushing
-		inFrontOfUserPosition = new Vector3(0F, -0.5F, -6F);
+		inFrontOfUserPosition = new Vector3(-0.24F, -0.42F, -7.84F);//new Vector3(0F, -0.5F, -6F);
 		
 		// Get the laser pointer GameObject
 		laserPointer = GameObject.Find("Laser Pointer");
@@ -104,20 +118,9 @@ public class Cat : BaseCat
 		selected_tool = SelectedTool.NONE;
 		SelectTool(SelectedTool.HAND);
 
-		// Previous save should always exist (otherwise adoption center would be loaded)
-		// If for some reason we got here, crash.
-		if (!GameSave.Valid()) {
-			Debug.Log("LivingRoom loaded without a save! Quiting.");
-#if UNITY_EDITOR
-        UnityEditor.EditorApplication.isPlaying = false;
-#else
-        Application.Quit ();
-			return;
-#endif
-		}
-
-		// Load previous save / adopted cat
-		Load();
+		// Create completely new cat
+		CreateNew();
+		Save();
 
 		// Start off idle
 		activity = new CatActivity( CatActivityEnum.Idle );
@@ -175,7 +178,7 @@ public class Cat : BaseCat
 		autonomousCatBehaviorTree.paused = false;
 										
 		userInteractionBehaviorTree = new BehaviorTree ( new SequenceNode 	( 	contextObject,
-																				new GoToPointNode ( contextObject, inFrontOfUserPosition ),
+																				new GoToObjectNode ( contextObject, GameObject.Find("Player") ),
 																				new FocusOnUserNode ( contextObject, 7F )
 																			)
 														);
@@ -247,8 +250,8 @@ public class Cat : BaseCat
 		// Run behavior tree. If a tree is "paused", it will not run.
 		StartCoroutine(runTree(Time.time));
 		
-		// If cat is currently interacting with user, the camera should follow the cat
-		if (userInteractionBehaviorTree.paused == false)
+		// If cat is currently interacting with user && user is in desktop mode, the camera should follow the cat
+		if ((userInteractionBehaviorTree.paused == false) && (XRDevice.isPresent == false))
 		{
 			Camera.main.transform.LookAt(gameObject.transform); // Main camera look at cat
 		}
@@ -413,15 +416,23 @@ public class Cat : BaseCat
 	{
 		autonomousCatBehaviorTree.paused = false;
 		userInteractionBehaviorTree.paused = true;
-		
-		Camera.main.GetComponent<CameraScript>().Reset();
+
 	}
 
  	public void turnOnUserInteractionCatBehavior()
 	{
 		autonomousCatBehaviorTree.paused = true;
 		userInteractionBehaviorTree.paused = false;
-		
-		Camera.main.transform.LookAt(gameObject.transform); // Main camera look at cat
+
+	}
+
+	public bool AutonomousCatBehaviorTreeEnabled()
+	{
+		return !autonomousCatBehaviorTree.paused;
+	}
+
+	public bool UserInteractionBehaviorTreeEnabled()
+	{
+		return !userInteractionBehaviorTree.paused;
 	}
 }

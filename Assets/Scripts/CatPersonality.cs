@@ -169,7 +169,7 @@ public class CatPersonality
 		// Update hygiene
 		if (CatActivityEnum.BeingBrushed == activity.current) 
 		{
-			stats.Hygiene += dt * hygiene_increase_when_being_brushed_per_second * stats.hygiene_buff.Value;
+			stats.Hygiene += dt * hygiene_increase_when_being_brushed_per_second * stats.hygiene_buff.Value * 0.5f;//Added in 0.2 multiplier for brushing for VR Conversion :) 6/12/19
 		} 
 		else 
 		{

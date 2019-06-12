@@ -24,7 +24,7 @@ public class PushToyIntoCameraView : MonoBehaviour
 			towardsOrigin = new Vector3(-1 * other_collider.gameObject.transform.position.x, 0, -1 * other_collider.gameObject.transform.position.z);
 			
 			// Apply force to move toy back into camera view
-			Debug.Log("Applying force.");
+			// Debug.Log("Applying force.");
 			other_collider.gameObject.GetComponent<Rigidbody>().AddForce( towardsOrigin.normalized );
 		}
 		

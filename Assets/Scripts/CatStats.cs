@@ -283,7 +283,7 @@ public class Buff
 		
 		if (!_green_effect || !_yellow_effect)
 		{
-			Debug.Log("Visual effects missing for buff/debuff.");
+			//Debug.Log("Visual effects missing for buff/debuff.");
 		}
 		
 	}
