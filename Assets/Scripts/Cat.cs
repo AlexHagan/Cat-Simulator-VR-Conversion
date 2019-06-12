@@ -62,6 +62,8 @@ public class Cat : BaseCat
 	GameObject laserPointer;
 	// Laser pointer GameObject's script
 	LaserPointer laserPointerScript;
+	// Camera movement script
+	CameraMovementForVR cameraMovementScript;
 	
 	float last_update_time;
 
@@ -89,7 +91,7 @@ public class Cat : BaseCat
 		forced_sit = false;
 		
 		// Cat position for petting / brushing
-		inFrontOfUserPosition = new Vector3(0F, -0.5F, -6F);
+		inFrontOfUserPosition = new Vector3(-0.24F, -0.42F, -7.84F);//new Vector3(0F, -0.5F, -6F);
 		
 		// Get the laser pointer GameObject
 		laserPointer = GameObject.Find("Laser Pointer");
@@ -183,12 +185,15 @@ public class Cat : BaseCat
 		autonomousCatBehaviorTree.paused = false;
 										
 		userInteractionBehaviorTree = new BehaviorTree ( new SequenceNode 	( 	contextObject,
-																				new GoToPointNode ( contextObject, inFrontOfUserPosition ),
+																				new GoToObjectNode ( contextObject, GameObject.Find("Player") ),
 																				new FocusOnUserNode ( contextObject, 7F )
 																			)
 														);
 		userInteractionBehaviorTree.paused = true;
 		
+
+		cameraMovementScript = Camera.main.GetComponentInParent<CameraMovementForVR>();
+
 		
 		// Initialize last update time to now
 		last_update_time = Time.time;
@@ -421,16 +426,23 @@ public class Cat : BaseCat
 	{
 		autonomousCatBehaviorTree.paused = false;
 		userInteractionBehaviorTree.paused = true;
-		
-		Camera.main.GetComponent<CameraScript>().Reset();
+
 	}
 
  	public void turnOnUserInteractionCatBehavior()
 	{
 		autonomousCatBehaviorTree.paused = true;
 		userInteractionBehaviorTree.paused = false;
-		
-		Camera.main.transform.LookAt(gameObject.transform); // Main camera look at cat
+
 	}
 
+	public bool AutonomousCatBehaviorTreeEnabled()
+	{
+		return !autonomousCatBehaviorTree.paused;
+	}
+
+	public bool UserInteractionBehaviorTreeEnabled()
+	{
+		return !userInteractionBehaviorTree.paused;
+	}
 }

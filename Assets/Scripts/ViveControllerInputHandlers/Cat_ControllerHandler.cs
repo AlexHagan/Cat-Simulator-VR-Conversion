@@ -14,10 +14,7 @@ using HTC.UnityPlugin.Vive;
 
 
 public class Cat_ControllerHandler : MonoBehaviour
-										, IPointerEnterHandler
- 										, IPointerExitHandler
- 										, IPointerDownHandler
- 										, IPointerUpHandler 
+ 										, IPointerClickHandler
 {
 	private HashSet<PointerEventData> hovers = new HashSet<PointerEventData>();
 	Cat catScript; 	// Reference to cat class attached to Cat gameobject
@@ -41,72 +38,43 @@ public class Cat_ControllerHandler : MonoBehaviour
 
 	}
 
-	public void OnPointerEnter(PointerEventData eventData)
+	// Click on the cat to summon it
+	public void OnPointerClick(PointerEventData eventData)
 	{
-		if (hovers.Add(eventData) && hovers.Count == 1)
+		if ((eventData.IsViveButton(ControllerButton.Trigger)) && (SelectedTool.HAND == catScript.selected_tool || SelectedTool.BRUSH == catScript.selected_tool))
 		{
-			// turn to highlight state
-		}
-	}
-
-	public void OnPointerExit(PointerEventData eventData)
-	{
-		if (hovers.Remove(eventData) && hovers.Count == 0)
-		{
-			// turn to normal state
-		}
-	}
-
-	public void OnPointerDown(PointerEventData eventData)
-	{
-		if (eventData.IsViveButton(ControllerButton.Trigger))
-		{
-			// Trigger button pressed
-			
 			Debug.Log("Controller clicked on cat.");
-		
-			// If trigger just went down, and the user is currently petting or brushing the cat, start counting drag time
-			if ((!is_drag) && (SelectedTool.HAND == catScript.selected_tool || SelectedTool.BRUSH == catScript.selected_tool)) {
-				is_drag = true;
-				drag_start_time = Time.time;
-			}
-		}
-	}
-
-	public void OnPointerUp(PointerEventData eventData)
-	{
-		// When mouse released, act based on accumulated drag
-		is_drag = false;
-		double drag_time = Time.time - drag_start_time;
-		catScript.time_of_last_user_interaction = Time.time;
-
- 		// A short drag is registered as a click, causing cat to begin user interaction behaviors
-		if (drag_time < 0.1) 
-		{
-			// Switch behavior trees
 			catScript.turnOnUserInteractionCatBehavior();
-
- 		}
-		// Else if cat is in front of user...
-		else if ( (GetComponent<Transform>().position - catScript.inFrontOfUserPosition).magnitude <= agent.stoppingDistance )
-		{
-			// If using hand tool, register as petting
-			if (catScript.selected_tool == SelectedTool.HAND)
-			{
-				catScript.activity.current = CatActivityEnum.BeingPet;
-				catScript.achievements.num_pets++;
-				Debug.Log("Petted cat with VR controller.");
-			}
-			// If using brush tool, register as brushing
-			else if (catScript.selected_tool == SelectedTool.BRUSH)
-			{
-				catScript.activity.current = CatActivityEnum.BeingBrushed;
-				catScript.achievements.num_brushes++;
-				Debug.Log("Brushed cat with VR controller.");
-			}
 		}
-
-
 	}
+
+	void OnCollisionExit(Collision collisionInfo)
+	{
+		Debug.Log(string.Format("Collision with {0} exited.", collisionInfo.gameObject.name));
+		
+		if (collisionInfo.gameObject.CompareTag("GameController"))
+		{
+			petOrBrushCat();
+		}
+	}
+
+	public void petOrBrushCat()
+	{
+		// If using hand tool, register as petting
+		if (catScript.selected_tool == SelectedTool.HAND)
+		{
+			catScript.activity.current = CatActivityEnum.BeingPet;
+			catScript.achievements.num_pets++;
+			Debug.Log("Petted cat with VR controller.");
+		}
+		// If using brush tool, register as brushing
+		else if (catScript.selected_tool == SelectedTool.BRUSH)
+		{
+			catScript.activity.current = CatActivityEnum.BeingBrushed;
+			catScript.achievements.num_brushes++;
+			Debug.Log("Brushed cat with VR controller.");
+		}
+	}
+
 
 }
