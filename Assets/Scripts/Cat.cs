@@ -178,7 +178,7 @@ public class Cat : BaseCat
 		autonomousCatBehaviorTree.paused = false;
 										
 		userInteractionBehaviorTree = new BehaviorTree ( new SequenceNode 	( 	contextObject,
-																				new GoToObjectNode ( contextObject, GameObject.Find("Player") ),
+																				new GoToObjectNode ( contextObject, Camera.main.gameObject ),
 																				new FocusOnUserNode ( contextObject, 7F )
 																			)
 														);

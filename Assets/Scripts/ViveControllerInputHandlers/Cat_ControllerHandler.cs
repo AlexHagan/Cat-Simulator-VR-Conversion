@@ -80,6 +80,7 @@ void OnTriggerStay(Collider collisionInfo)
 
 	public void petOrBrushCat()
 	{
+		catScript.time_of_last_user_interaction = Time.time;
 		//SteamVR_Controller.Input([0]).TriggerHapticPulse([200]);
 		// If using hand tool, register as petting
 		if (catScript.selected_tool == SelectedTool.HAND)
