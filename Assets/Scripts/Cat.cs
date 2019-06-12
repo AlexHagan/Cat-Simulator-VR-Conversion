@@ -120,14 +120,9 @@ public class Cat : BaseCat
 		selected_tool = SelectedTool.NONE;
 		SelectTool(SelectedTool.HAND);
 
-		if (!GameSave.Valid()) {
-			Debug.Log("No save data found; creating new cat.");
-			CreateNew();
-			Save();
-		}
-
-		// Load previous save / adopted cat
-		Load();
+		// Create completely new cat
+		CreateNew();
+		Save();
 
 		// Start off idle
 		activity = new CatActivity( CatActivityEnum.Idle );
