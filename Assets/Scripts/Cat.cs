@@ -62,6 +62,8 @@ public class Cat : BaseCat
 	GameObject laserPointer;
 	// Laser pointer GameObject's script
 	LaserPointer laserPointerScript;
+
+	GameObject brush;
 	
 	float last_update_time;
 
@@ -97,6 +99,11 @@ public class Cat : BaseCat
 		laserPointerScript = laserPointer.GetComponent<LaserPointer>();
 		// Deactivate laser pointer game object to turn it off
 		laserPointer.SetActive(false);
+
+		// Find brush and deactivate
+		brush = GameObject.Find("Brush");
+		brush.SetActive(false);
+
 		// Cat is not on catnip
 		on_catnip = false;
 		
@@ -295,6 +302,13 @@ public class Cat : BaseCat
 		if (tool != SelectedTool.LASER_POINTER)
 		{
 			laserPointer.SetActive(false);
+			laserPointerScript.leftHandGuideline.SetActive(true);
+			laserPointerScript.rightHandGuideline.SetActive(true);
+		}
+
+		if (tool != SelectedTool.BRUSH)
+		{
+			brush.SetActive(false);
 		}
 		
 		// Log the change in tool
@@ -309,6 +323,7 @@ public class Cat : BaseCat
 		else if (SelectedTool.BRUSH == tool) 
 		{
 			Cursor.SetCursor(brush_cursor, offset, CursorMode.ForceSoftware);
+			brush.SetActive(true);
 		} 
 		else if (SelectedTool.FOOD == tool) 
 		{
@@ -317,6 +332,12 @@ public class Cat : BaseCat
 		else if (SelectedTool.LASER_POINTER == tool) 
 		{
 			Cursor.SetCursor(laser_cursor, offset, CursorMode.ForceSoftware);
+
+			// Turn off vive controller laser pointers
+			laserPointerScript.leftHandGuideline.SetActive(false);
+			laserPointerScript.rightHandGuideline.SetActive(false);
+
+			//Activate laser pointer gameobject
 			laserPointer.SetActive(true);
 		}
 		else if (SelectedTool.LITTER_SCOOPER == tool)

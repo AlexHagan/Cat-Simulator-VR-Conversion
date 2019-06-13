@@ -6,33 +6,33 @@ public class LaserPointer : MonoBehaviour
 {
 	LineRenderer laserRenderer;
 	Vector3 laserIntersectionPoint;
+	GameObject player;
+	public GameObject rightLaserReticle;
+	public GameObject rightHandGameObject;
+	public GameObject leftHandGuideline;
+	public GameObject rightHandGuideline;
 	
     // Start is called before the first frame update
     void Start()
     {
 		laserRenderer = GetComponent<LineRenderer>();
+		player = GameObject.Find("Player");
     }
 
-    // Unity will only call Update() if the gameObject is active
-    void Update()
+    // LateUpdate is called after all Update functions are called
+    void LateUpdate()
     {
-		// Find intersection of cursor and an object
-		RaycastHit hit;
-		Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+		//RaycastHit hit;
+		//Ray ray = new Ray(player.transform.position, (rightLaserReticle.transform.position - player.transform.position).normalized);
 
-		if (Physics.Raycast(ray, out hit))
-		{
-			// Update laser visualization
-			Vector3[] linePoints = {
-				Camera.main.ScreenToWorldPoint(new Vector3(Camera.main.pixelWidth / 2, 0, Camera.main.nearClipPlane)),
-				hit.point
-				};
-				
-			laserIntersectionPoint = hit.point;
-		 
-			laserRenderer.positionCount = linePoints.Length;
-			laserRenderer.SetPositions(linePoints);
-		}
+		// Update laser visualization
+		// First point is laser origin, second point is laser destination
+		Vector3[] linePoints = {rightHandGameObject.transform.position,	rightLaserReticle.transform.position};
+			
+		laserIntersectionPoint = rightLaserReticle.transform.position;
+	 
+		laserRenderer.positionCount = linePoints.Length;
+		laserRenderer.SetPositions(linePoints);
     }
 	
 	public Vector3 getLaserIntersectionPoint ()

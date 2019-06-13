@@ -11,6 +11,7 @@ TagManager:
   - Reticle
   - GameController_Left
   - GameController_Right
+  - Brush
   layers:
   - Default
   - TransparentFX
