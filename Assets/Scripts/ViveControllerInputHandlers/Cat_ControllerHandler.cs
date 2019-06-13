@@ -18,6 +18,9 @@ public class Cat_ControllerHandler : MonoBehaviour
 {
 	public HandRole rHand;
 	public HandRole lHand;
+	public GameObject leftLaserGuideline;
+	public GameObject rightLaserGuideline;
+	public GameObject brush;
 	private HashSet<PointerEventData> hovers = new HashSet<PointerEventData>();
 	Cat catScript; 	// Reference to cat class attached to Cat gameobject
 	NavMeshAgent agent;
@@ -44,42 +47,77 @@ public class Cat_ControllerHandler : MonoBehaviour
 		}
 	}
 
-void OnTriggerEnter(Collider collisionInfo)
-{
-    //Debug.Log(string.Format("Collision with {0} exited.", collisionInfo.gameObject.name));
-    ushort intensity = 50000;
- 
-    if (collisionInfo.gameObject.CompareTag("GameController_Left"))
-    {
-        ViveInput.TriggerHapticPulse(lHand,intensity);
-        petOrBrushCat();
-    }
- 
-    if (collisionInfo.gameObject.CompareTag("GameController_Right"))
-    {
-        ViveInput.TriggerHapticPulse(rHand,intensity);
-        petOrBrushCat();
-    }
-}
- 
-void OnTriggerStay(Collider collisionInfo)
-{
-    Debug.Log(collisionInfo.gameObject.name);
-    ushort intensity = 400;
- 
-    if (collisionInfo.gameObject.CompareTag("GameController_Left"))
-    {
-        ViveInput.TriggerHapticPulse(lHand,intensity);
-    }
- 
-    if (collisionInfo.gameObject.CompareTag("GameController_Right"))
-    {
-        ViveInput.TriggerHapticPulse(rHand,intensity);
-    }
-}
-
-	public void petOrBrushCat()
+	void OnTriggerEnter(Collider collisionInfo)
 	{
+	    //Debug.Log(string.Format("Collision with {0} exited.", collisionInfo.gameObject.name));
+	    ushort intensity = 50000;
+
+	    if (collisionInfo.gameObject.CompareTag("GameController_Left"))
+	    {
+	    	// Turn off controller laser guidelines
+	    	leftLaserGuideline.SetActive(false);
+	    	// Tell controller to vibrate
+	        ViveInput.TriggerHapticPulse(lHand,intensity);
+	        petCat();
+	    }
+	 
+	    if (collisionInfo.gameObject.CompareTag("GameController_Right"))
+	    {
+	    	rightLaserGuideline.SetActive(false);
+	        ViveInput.TriggerHapticPulse(rHand,intensity);
+	        petCat();
+	    }
+
+	    if (collisionInfo.gameObject.CompareTag("Brush"))
+	    {
+	    	rightLaserGuideline.SetActive(false);
+	    	ViveInput.TriggerHapticPulse(rHand,intensity);
+	    	brushCat();
+	    }
+	}
+	 
+	void OnTriggerStay(Collider collisionInfo)
+	{
+	    //Debug.Log(collisionInfo.gameObject.name);
+	    ushort intensity = 400;
+	 
+	    if (collisionInfo.gameObject.CompareTag("GameController_Left"))
+	    {
+	        ViveInput.TriggerHapticPulse(lHand,intensity);
+	    }
+	 
+	    if (collisionInfo.gameObject.CompareTag("GameController_Right"))
+	    {
+	        ViveInput.TriggerHapticPulse(rHand,intensity);
+	    }
+
+	    if (collisionInfo.gameObject.CompareTag("Brush"))
+	    {
+	        ViveInput.TriggerHapticPulse(rHand,intensity);
+	    }
+	}
+
+	void OnTriggerExit(Collider collisionInfo)
+	{
+		// Turn on controller laser guidelines
+	    leftLaserGuideline.SetActive(true);
+	    rightLaserGuideline.SetActive(true);
+
+	    if (collisionInfo.gameObject.CompareTag("Brush"))
+	    {
+	    	catScript.activity.current = CatActivityEnum.Idle;
+	    }
+
+	    if (collisionInfo.gameObject.CompareTag("GameController_Left") || collisionInfo.gameObject.CompareTag("GameController_Right"))
+	    {
+	    	catScript.activity.current = CatActivityEnum.Idle;
+	    }
+
+	}
+
+	public void petCat()
+	{
+		catScript.time_of_last_user_interaction = Time.time;
 		//SteamVR_Controller.Input([0]).TriggerHapticPulse([200]);
 		// If using hand tool, register as petting
 		if (catScript.selected_tool == SelectedTool.HAND)
@@ -88,12 +126,17 @@ void OnTriggerStay(Collider collisionInfo)
 			catScript.achievements.num_pets++;
 			//Debug.Log("Petted cat with VR controller.");
 		}
+	}
+
+	public void brushCat()
+	{
+		catScript.time_of_last_user_interaction = Time.time;
 		// If using brush tool, register as brushing
-		else if (catScript.selected_tool == SelectedTool.BRUSH)
+		if (catScript.selected_tool == SelectedTool.BRUSH)
 		{
 			catScript.activity.current = CatActivityEnum.BeingBrushed;
 			catScript.achievements.num_brushes++;
-			//Debug.Log("Brushed cat with VR controller.");
+			Debug.Log("Brushed cat with VR controller.");
 		}
 	}
 }
